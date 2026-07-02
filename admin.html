@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+ <meta charset="UTF-8">
+ <title>Admin Moderáció</title>
+ <style>
+ body { font-family: sans-serif; background: #1e293b; color: white; padding:
+20px; }
+ .item { background: #334155; padding: 15px; margin-bottom: 10px; border-radius:
+8px; display: flex; justify-content: space-between; align-items: center; }
+ .btn { background: #22c55e; border:none; color:white; padding: 8px 15px; border: 4px; cursor:pointer; font-weight:bold; }
+ .btn-del { background: #ef4444; margin-left: 5px; }
+ </style>
+</head>
+<body>
+ <h2>Várakozó üzenetek</h2>
+ <div id="list"></div>
+ <script type="module">
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebaseapp.js";
+ import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc,
+deleteDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+ const firebaseConfig = { apiKey: "AIzaSyDS6UEeb9o5XT7hCBOHMw-nADQkQrEXRIk", authDomain: "ootv-9ad58.firebaseapp.com",
+projectId: "ootv-9ad58" };
+ const app = initializeApp(firebaseConfig);
+ const db = getFirestore(app);
+ const q = query(collection(db, "messages"), where("approved", "==", false));
+ onSnapshot(q, (snapshot) => {
+ const list = document.getElementById('list');
+ list.innerHTML = snapshot.empty ? "<p>Nincs új jóváhagyásra váró üzenet.</p>" : "";
+ snapshot.forEach((documentSnap) => {
+ const data = documentSnap.data();
+ const id = documentSnap.id;
+ const div = document.createElement('div');
+ div.className = 'item';
+ div.innerHTML = `
+ <div>
+ <strong>${data.name}</strong>: ${data.text} <br><small>$
+{data.date}</small>
+ </div>
+ <div>
+ <button class="btn" onclick="approve('${id}')">TV-re küld</button>
+ <button class="btn btn-del" onclick="reject('${id}')">Töröl</
+button>
+ </div>
+ `;
+ list.appendChild(div);
+ });
+ });
+ window.approve = async (id) => { await updateDoc(doc(db, "messages", id),
+{ approved: true }); };
+ window.reject = async (id) => { await deleteDoc(doc(db, "messages", id)); };
+ </script>
+</body>
+</html>
