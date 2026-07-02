@@ -1,68 +1,90 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Üzenet Küldése</title>
- <style>
- body { font-family: sans-serif; background: #f3f4f6; padding: 20px; margin:0;
-display:flex; justify-content:center; }
- .card { background: white; padding: 25px; border-radius: 12px; width: 100%; width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
- h3 { margin-top:0; color: #1e3c72; }
- input, textarea { width: 100%; padding: 10px; margin: 8px 0 16px 0; border: 1px
-solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 11pt; }
- button { width: 100%; background: #ff4757; color: white; border: none; padding:
-12px; border-radius: 6px; font-size: 12pt; cursor: pointer; font-weight: bold; }
- button:hover { background: #e04050; }
- .success { color: green; font-weight: bold; display: none; text-align: center;
-margin-top: 10px; }
- </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Üzenet Küldése</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f3f4f6; padding: 20px; margin:0; display:flex; justify-content:center; }
+        .card { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h3 { margin-top:0; color: #1e3c72; font-size: 16pt; }
+        label { font-weight: bold; font-size: 10pt; color: #475569; }
+        .optional { font-weight: normal; color: #94a3b8; font-size: 9pt; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0 20px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 11pt; font-family: inherit; }
+        input:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        button { width: 100%; background: #ff4757; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 12pt; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:hover { background: #e04050; }
+        .success { color: #16a34a; font-weight: bold; display: none; text-align: center; margin-top: 15px; padding: 10px; background: #dcfce7; border-radius: 6px; }
+    </style>
 </head>
 <body>
- <div class="card">
- <h3>Küldj egy kedves üzenetet!</h3>
- <label>Neved:</label>
- <input type="text" id="name" placeholder="Pl. Kovács János" required>
- <label>Üzeneted:</label>
- <textarea id="text" rows="4" placeholder="Írd le a kedves gondolataidat..."
-required></textarea>
- <button id="sendBtn">Üzenet Beküldése</button>
- <div class="success" id="successMsg">✓ Sikeresen beküldve! Moderáció után
-megjelenik.</div>
- </div>
- <script type="module">
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
- import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
- const firebaseConfig = {
- apiKey: "AIzaSyDS6UEeb9o5XT7hCBOHMw-nADQkQrEXRIk",
- authDomain: "ootv-9ad58.firebaseapp.com",
- projectId: "ootv-9ad58"
- };
- const app = initializeApp(firebaseConfig);
- const db = getFirestore(app);
- document.getElementById('sendBtn').addEventListener('click', async () => {
- const name = document.getElementById('name').value.trim();
- const text = document.getElementById('text').value.trim();
- const dateStr = new Date().toLocaleDateString('hu-HU', { hour: '2-digit',
-minute: '2-digit' });
- if(!name || !text) { alert('Kérjük, tölts ki minden mezőt!'); return; }
- try {
- await addDoc(collection(db, "messages"), {
- name: name,
- text: text,
- date: dateStr,
- approved: false,
- timestamp: serverTimestamp()
- });
- document.getElementById('name').value = '';
- document.getElementById('text').value = '';
- const msg = document.getElementById('successMsg');
- msg.style.display = 'block';
- setTimeout(() => msg.style.display = 'none', 4000);
- } catch (e) {
- alert('Hiba történt a küldés során.');
- }
- });
- </script>
+    <div class="card">
+        <h3>✨ Küldj egy kedves üzenetet!</h3>
+        
+        <label>A Te neved:</label>
+        <input type="text" id="name" placeholder="Pl. Kovács János" required>
+        
+        <label>Kinek küldöd? <span class="optional">(Opcionális)</span></label>
+        <input type="text" id="recipient" placeholder="Pl. Szabó Anna">
+        
+        <label>Üzeneted:</label>
+        <textarea id="text" rows="4" placeholder="Írd le a kedves gondolataidat..." required></textarea>
+        
+        <button id="sendBtn">Üzenet Beküldése</button>
+        <div class="success" id="successMsg">✓ Sikeresen beküldve! Moderáció után megjelenik a TV-n.</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // IDE MÁSOLD BE A SAJÁT KULCSAIDAT!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDS6UEeb9o5XT7hCBOHMw-nADQkQrEXRIk",
+            authDomain: "ootv-9ad58.firebaseapp.com",
+            projectId: "ootv-9ad58"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('sendBtn').addEventListener('click', async () => {
+            const name = document.getElementById('name').value.trim();
+            const recipient = document.getElementById('recipient').value.trim(); // Új mező beolvasása
+            const text = document.getElementById('text').value.trim();
+            const dateStr = new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+
+            if(!name || !text) { alert('Kérjük, töltsd ki a kötelező mezőket (Neved és Üzenet)!'); return; }
+
+            const btn = document.getElementById('sendBtn');
+            btn.innerText = "Küldés folyamatban...";
+            btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "messages"), {
+                    name: name,
+                    recipient: recipient, // Eltároljuk az adatbázisban
+                    text: text,
+                    date: dateStr,
+                    approved: false,
+                    timestamp: serverTimestamp()
+                });
+                
+                document.getElementById('name').value = '';
+                document.getElementById('recipient').value = '';
+                document.getElementById('text').value = '';
+                
+                btn.innerText = "Üzenet Beküldése";
+                btn.disabled = false;
+                
+                const msg = document.getElementById('successMsg');
+                msg.style.display = 'block';
+                setTimeout(() => msg.style.display = 'none', 5000);
+            } catch (e) {
+                alert('Hiba történt a küldés során.');
+                btn.innerText = "Üzenet Beküldése";
+                btn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
