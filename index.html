@@ -8,10 +8,17 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f3f4f6; padding: 20px; margin:0; display:flex; justify-content:center; }
         .card { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h3 { margin-top:0; color: #1e3c72; font-size: 16pt; }
-        label { font-weight: bold; font-size: 10pt; color: #475569; }
+        label { font-weight: bold; font-size: 10pt; color: #475569; display: block; margin-bottom: 8px; }
         .optional { font-weight: normal; color: #94a3b8; font-size: 9pt; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0 20px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 11pt; font-family: inherit; }
-        input:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        input[type="text"], textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 11pt; font-family: inherit; }
+        input[type="text"]:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        
+        /* Ajándék Checkbox stílusa */
+        .gift-box { background: #fef3c7; border: 1px solid #fbbf24; padding: 15px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+        .gift-box:hover { background: #fde68a; }
+        .gift-box input { width: 20px; height: 20px; cursor: pointer; margin: 0; }
+        .gift-label { font-size: 11pt; font-weight: bold; color: #b45309; cursor: pointer; margin: 0; display: inline; }
+
         button { width: 100%; background: #ff4757; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 12pt; cursor: pointer; font-weight: bold; transition: background 0.2s; }
         button:hover { background: #e04050; }
         .success { color: #16a34a; font-weight: bold; display: none; text-align: center; margin-top: 15px; padding: 10px; background: #dcfce7; border-radius: 6px; }
@@ -29,6 +36,11 @@
         
         <label>Üzeneted:</label>
         <textarea id="text" rows="4" placeholder="Írd le a kedves gondolataidat..." required></textarea>
+
+        <label class="gift-box">
+            <input type="checkbox" id="isGift">
+            <span class="gift-label">🎁 Különleges, ajándék dizájnnal küldöm!</span>
+        </label>
         
         <button id="sendBtn">Üzenet Beküldése</button>
         <div class="success" id="successMsg">✓ Sikeresen beküldve! Moderáció után megjelenik a TV-n.</div>
@@ -39,18 +51,16 @@
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // IDE MÁSOLD BE A SAJÁT KULCSAIDAT!
-        const firebaseConfig = {
-            apiKey: "AIzaSyDS6UEeb9o5XT7hCBOHMw-nADQkQrEXRIk",
-            authDomain: "ootv-9ad58.firebaseapp.com",
-            projectId: "ootv-9ad58"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyDS6UEeb9o5XT7hCBOHMw-nADQkQrEXRIk", authDomain: "ootv-9ad58.firebaseapp.com", projectId: "ootv-9ad58" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         document.getElementById('sendBtn').addEventListener('click', async () => {
             const name = document.getElementById('name').value.trim();
-            const recipient = document.getElementById('recipient').value.trim(); // Új mező beolvasása
+            const recipient = document.getElementById('recipient').value.trim();
             const text = document.getElementById('text').value.trim();
+            const isGift = document.getElementById('isGift').checked; // Érték beolvasása (true/false)
+            
             const dateStr = new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
 
             if(!name || !text) { alert('Kérjük, töltsd ki a kötelező mezőket (Neved és Üzenet)!'); return; }
@@ -62,8 +72,9 @@
             try {
                 await addDoc(collection(db, "messages"), {
                     name: name,
-                    recipient: recipient, // Eltároljuk az adatbázisban
+                    recipient: recipient,
                     text: text,
+                    isGift: isGift, // Eltároljuk az adatbázisban
                     date: dateStr,
                     approved: false,
                     timestamp: serverTimestamp()
@@ -72,6 +83,7 @@
                 document.getElementById('name').value = '';
                 document.getElementById('recipient').value = '';
                 document.getElementById('text').value = '';
+                document.getElementById('isGift').checked = false;
                 
                 btn.innerText = "Üzenet Beküldése";
                 btn.disabled = false;
