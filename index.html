@@ -2,26 +2,101 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Üzenet Küldése</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f3f4f6; padding: 20px; margin:0; display:flex; justify-content:center; }
-        .card { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h3 { margin-top:0; color: #1e3c72; font-size: 16pt; }
-        label { font-weight: bold; font-size: 10pt; color: #475569; display: block; margin-bottom: 8px; }
-        .optional { font-weight: normal; color: #94a3b8; font-size: 9pt; }
-        input[type="text"], textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 11pt; font-family: inherit; }
-        input[type="text"]:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        /* ALAP ÉS MOBIL DIZÁJN (Mobile-first) */
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%); /* Elegáns kékes-szürke háttérátmenet */
+            min-height: 100vh; /* Képernyő magasságának kitöltése */
+            margin: 0; 
+            display: flex; 
+            align-items: center; /* Függőlegesen középre igazítja a dobozt laptopon */
+            justify-content: center; 
+            padding: 15px; 
+            box-sizing: border-box;
+        }
         
-        /* Ajándék Checkbox stílusa */
-        .gift-box { background: #fef3c7; border: 1px solid #fbbf24; padding: 15px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+        .card { 
+            background: white; 
+            padding: 25px 20px; 
+            border-radius: 16px; 
+            width: 100%; 
+            max-width: 480px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Lágyabb, modernebb árnyék */
+            box-sizing: border-box;
+        }
+        
+        h3 { margin-top: 0; color: #1e3c72; font-size: 17pt; text-align: center; margin-bottom: 25px; }
+        
+        label { font-weight: 600; font-size: 10pt; color: #475569; display: block; margin-bottom: 8px; }
+        .optional { font-weight: normal; color: #94a3b8; font-size: 9pt; }
+        
+        /* Érintésbarát beviteli mezők */
+        input[type="text"], textarea { 
+            width: 100%; 
+            padding: 15px; /* Nagyobb belső tér a kényelmes tapintáshoz */
+            margin-bottom: 20px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 11pt; 
+            font-family: inherit; 
+            background-color: #f8fafc;
+            transition: all 0.2s ease; 
+        }
+        input[type="text"]:focus, textarea:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Kék aura fókuszáláskor */
+        }
+        textarea { resize: vertical; min-height: 100px; } /* Csak lefelé lehessen húzni */
+        
+        /* Ajándék Checkbox optimalizálása */
+        .gift-box { 
+            background: #fef3c7; 
+            border: 1px solid #fbbf24; 
+            padding: 16px; 
+            border-radius: 8px; 
+            margin-bottom: 25px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            transition: background 0.2s;
+            user-select: none; /* Ne jelölje ki a szöveget, ha mellétapint a felhasználó */
+        }
         .gift-box:hover { background: #fde68a; }
-        .gift-box input { width: 20px; height: 20px; cursor: pointer; margin: 0; }
-        .gift-label { font-size: 11pt; font-weight: bold; color: #b45309; cursor: pointer; margin: 0; display: inline; }
+        .gift-box input { width: 22px; height: 22px; cursor: pointer; margin: 0; flex-shrink: 0; }
+        .gift-label { font-size: 11pt; font-weight: bold; color: #b45309; cursor: pointer; margin: 0; line-height: 1.3;}
 
-        button { width: 100%; background: #ff4757; color: white; border: none; padding: 14px; border-radius: 6px; font-size: 12pt; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        button:hover { background: #e04050; }
-        .success { color: #16a34a; font-weight: bold; display: none; text-align: center; margin-top: 15px; padding: 10px; background: #dcfce7; border-radius: 6px; }
+        /* Gomb optimalizálás */
+        button { 
+            width: 100%; 
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+            color: white; 
+            border: none; 
+            padding: 16px; /* Vastagabb gomb */
+            border-radius: 8px; 
+            font-size: 12pt; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.2s; 
+            box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255, 71, 87, 0.4); }
+        button:active { transform: translateY(1px); box-shadow: 0 2px 5px rgba(255, 71, 87, 0.3); }
+        button:disabled { background: #94a3b8; box-shadow: none; transform: none; cursor: not-allowed; }
+
+        .success { color: #15803d; font-weight: bold; display: none; text-align: center; margin-top: 15px; padding: 12px; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 8px; }
+
+        /* ASZTALI GÉP / LAPTOP NÉZET (Media Query) */
+        @media (min-width: 768px) {
+            .card { padding: 40px 35px; } /* Nagyobb belső margó, hogy szellősebb legyen */
+            h3 { font-size: 20pt; margin-bottom: 30px; }
+        }
     </style>
 </head>
 <body>
@@ -59,9 +134,9 @@
             const name = document.getElementById('name').value.trim();
             const recipient = document.getElementById('recipient').value.trim();
             const text = document.getElementById('text').value.trim();
-            const isGift = document.getElementById('isGift').checked; // Érték beolvasása (true/false)
+            const isGift = document.getElementById('isGift').checked;
             
-            const dateStr = new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = new Date().toLocaleString('hu-HU', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
             if(!name || !text) { alert('Kérjük, töltsd ki a kötelező mezőket (Neved és Üzenet)!'); return; }
 
@@ -74,7 +149,7 @@
                     name: name,
                     recipient: recipient,
                     text: text,
-                    isGift: isGift, // Eltároljuk az adatbázisban
+                    isGift: isGift,
                     date: dateStr,
                     approved: false,
                     timestamp: serverTimestamp()
